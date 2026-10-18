@@ -1,0 +1,12 @@
+/* Landscape phone: restore the missing record without disturbing other scenes. */
+@media (orientation:landscape) and (max-height:600px) and (pointer:coarse){
+ html.tiny-mobile #khung-mat.me-man.tiny-meadow-eyes{transform:scale(.63)!important}
+ #smile-stage .tiny-vinyl-scene{display:block!important;left:21%!important;top:79%!important;width:min(22dvh,104px)!important;height:auto!important;aspect-ratio:1;z-index:8!important}
+ #smile-stage .tiny-vinyl-scene::before{filter:none;inset:-12%}
+ #smile-stage .vinyl-note{font-size:16px}
+ #smile-stage .vinyl-note:nth-last-child(-n+3){display:none}
+ #smile-stage.hien-thi .vinyl-record{animation:vinylTurn 6.3s linear infinite;animation-play-state:running}
+ #tiny-lyric-zone{left:30%!important;top:73%!important;width:39%!important;height:25%!important}
+ #tiny-lyric-zone .lyric-line{font-size:clamp(12px,4dvh,17px)!important;line-height:1.2}
+ #tiny-lyric-zone .lyric-line.compact{font-size:clamp(11px,3.7dvh,15px)!important}
+}

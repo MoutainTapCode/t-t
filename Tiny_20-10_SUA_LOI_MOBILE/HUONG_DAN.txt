@@ -1,0 +1,49 @@
+TINY 20/10 — NHẠC VÀ LỜI BÀI HÁT
+
+1. Giải nén toàn bộ ZIP, giữ nguyên thư mục assets.
+2. Mở index.html bằng Live Server trong VS Code (hoặc đưa cả thư mục lên hosting).
+3. Mật khẩu: 2312; có thể đổi trong cau-hinh.js.
+4. Nhạc phát ngay khi nhập đúng mã và cánh hoa bắt đầu bay.
+5. Nhạc tiếp tục qua các cảnh, hết bài tự lặp vô hạn.
+6. Lời bài hát trong cảnh nụ cười theo thời gian thực của nhạc, kể cả khi lặp lại.
+7. Giữ các mốc thời gian bạn cung cấp; sửa mốc 1:30–1:40 bị trùng thành 1:38–1:40 và “I Love You Số” thành “I Love You So”.
+
+Không mở riêng tiny.html nếu muốn trải nghiệm đầy đủ màn mật khẩu.
+Nên dùng Live Server/hosting thay vì nhấp đúp file để trình duyệt cho phép chia sẻ nhạc giữa hai màn hình.
+
+BÓ HOA 3D Ở CUỐI
+- Ở cảnh chúc may mắn, nhấn nút màu hồng đậm “Nhận bó hoa dành cho bạn” để mở hoa 3D. Không tự động mở hoa.
+- Kéo chuột hoặc vuốt để xoay; lăn chuột/chụm hai ngón để phóng to, thu nhỏ.
+- Có nút +, − và Đặt lại. Phím mũi tên cũng xoay được hoa.
+- Nút “Lời chúc” quay về cảnh cuối; nút “Nhận bó hoa” mở lại hoa.
+- Nhạc tiếp tục, không có nút Play Music.
+- Mô hình dựng bằng mã 3D theo ảnh mẫu, không phải mô hình gốc từ ảnh.
+- Thư viện 3D nằm sẵn trong assets, không cần tải CDN khi xem. Chạy bằng Live Server hoặc hosting; trình duyệt cần hỗ trợ WebGL.
+
+XEM TRÊN ĐIỆN THOẠI
+- Đưa toàn bộ thư mục lên hosting HTTPS, giữ nguyên assets.
+- Điện thoại để dọc hiện “Xoay Ngang Màn Hình” và chặn thao tác phía sau.
+- Xoay ngang thì tự ẩn thông báo. Nếu không xoay được, tắt khóa xoay của điện thoại.
+- Thời gian tự chuyển cảnh tạm dừng khi để dọc; nhạc đang phát vẫn tiếp tục.
+- Máy tính dùng chuột không bị yêu cầu xoay.
+
+CHỐNG BẤM LIÊN TỤC BỎ QUA CẢNH
+- Mỗi cảnh có thời gian xem tối thiểu, từ 2 đến 11 giây tùy nội dung.
+- Chỉ chuyển khi đã đủ thời gian, cảnh cho phép chuyển và chữ/hình chính đã hết hiệu ứng hữu hạn.
+- Các lần bấm sớm bị bỏ qua hoàn toàn, không cộng dồn.
+- Khóa áp dụng cho cả click/chạm và tự chuyển cảnh.
+- Thời gian đọc không được tính khi ẩn tab hoặc đang hiện yêu cầu xoay ngang.
+- Hoa rơi, chớp mắt và các hiệu ứng trang trí lặp vô hạn không cần chờ kết thúc.
+
+NHỊP CUỐI ĐÃ RÚT NGẮN
+- Cảnh cỏ 4 lá cho bấm tiếp sau khoảng 1,8 giây nếu hiệu ứng đã hoàn tất.
+- Sau hiệu ứng trao cỏ (khoảng 2,1 giây), có thể bấm ngay sang lời chúc may mắn, không chờ thêm.
+- Nếu không bấm, hai cảnh này tự chuyển sau khoảng 3 giây và 2,6 giây (vẫn chờ hiệu ứng trao cỏ kết thúc).
+- Cảnh may mắn đứng lại; chỉ nhấn Nhận bó hoa mới mở mô hình 3D.
+
+SỬA HIỂN THỊ ĐIỆN THOẠI
+- Màn nhập mật khẩu xoay ngang dùng bố cục hai cột gọn theo chiều cao màn hình.
+- Trái tim giữ cùng một tỉ lệ chiều ngang và dọc, không bị bẹt/phồng.
+- Mắt ở cảnh cánh đồng hoa thu về cùng tỉ lệ với các cảnh khác.
+- Khôi phục đĩa nhạc xoay ở cảnh nụ cười, bố trí bên cạnh lyric.
+- Khi cập nhật GitHub Pages, thay cả index.html, tiny.html và thư mục assets.

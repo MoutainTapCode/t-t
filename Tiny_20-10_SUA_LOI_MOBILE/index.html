@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#ffdde7" />
+  <title>Nhập ngày sinh của bạn - Tiny 20/10</title>
+  <style>
+    :root { color-scheme: light; --pink: #ff4e7b; --soft-pink: #ffc7d7; --ink: #673b4c; }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; min-height: 100%; margin: 0; }
+    body {
+      font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+      background: radial-gradient(ellipse 43% 55% at 50% 45%, #fff4f7 0%, #ffeaf0 56%, #ffdae7 100%);
+      display: grid; place-items: center; padding: 24px 14px;
+      overflow: hidden; color: var(--ink);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .pink-glow { position: fixed; inset: -22%; pointer-events: none; z-index: 0;
+      background: radial-gradient(ellipse 28% 32% at 7% 53%, #ffa1bf45, transparent 83%),
+                  radial-gradient(ellipse 30% 38% at 94% 75%, #ffb2c929, transparent 86%);
+    }
+    .sprinkles { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+    .sprinkle { position: absolute; left: var(--x); top: var(--y); width: var(--s); height: var(--s);
+      border-radius: 50%; background: var(--c); opacity: var(--o);
+      animation: floaty var(--t) ease-in-out infinite alternate; animation-delay: var(--d);
+    }
+    @keyframes floaty { from { transform: translate3d(0,5px,0); opacity: .18; } to { transform: translate3d(7px,-12px,0); opacity: var(--o); } }
+    .gate {
+      width: min(424px, 100%); padding: 49px 39px 37px;
+      border-radius: 36px; position: relative; z-index: 1; text-align: center;
+      background: rgba(255,255,255,.85); border: 1px solid #ffffffcf;
+      box-shadow: 0 24px 55px rgba(232,98,139,.12), 0 2px 2px #ffffff8a inset;
+      backdrop-filter: blur(14px);
+      transition: opacity .45s, transform .45s;
+    }
+    h1 { margin: 0; font-size: clamp(23px,4.1vw,30px); line-height: 1.3; letter-spacing: -.4px;
+      font-weight: 800; color: var(--pink);
+    }
+    .dots { display: flex; justify-content: center; align-items: center; gap: 18px; margin: 27px 0 34px; }
+    .dot { width: 24px; height: 24px; border: 2px solid #ffa4b9; border-radius: 50%; background: #fff0f4;
+      transition: background .15s, box-shadow .15s, transform .15s;
+    }
+    .dot.filled { background: #ff7799; border-color: #ff7799; box-shadow: 0 0 0 4px #ffe0e9; transform: scale(1.05); }
+    .pad { display: grid; grid-template-columns: repeat(3, minmax(0, 82px)); justify-content: center;
+      gap: 18px; }
+    .key { height: 66px; background: rgba(255,255,255,.88); border: 1px solid #ffd1dc;
+      border-radius: 18px; color: #67404e; font: 500 24px/1 "Segoe UI", sans-serif;
+      cursor: pointer; box-shadow: 0 7px 14px #e5799520;
+      transition: transform .12s ease, box-shadow .16s ease, border-color .12s, background .12s;
+    }
+    .key:hover { background: #fff3f7; border-color: #ff9cba; box-shadow: 0 7px 16px #f58ca02b; }
+    .key:active { transform: scale(.94); background: #ffe4eb; }
+    .key:focus-visible { outline: 3px solid #ff7fa0; outline-offset: 4px; }
+    .key.delete { color: var(--pink); font-size: 33px; font-weight: 800; }
+    .key.empty { visibility: hidden; pointer-events: none; }
+    .hint { margin: 21px 0 0; font-size: 13px; color: #ae8490; letter-spacing: .15px; }
+    .feedback { height: 20px; margin: 10px 0 -7px; color: #e33d6e; font-size: 13px;
+      font-weight: 600; }
+    .gate.shake { animation: shake .34s ease-in-out; }
+    @keyframes shake { 0%,100% { transform: translateX(0) } 20%,60% { transform: translateX(-7px) } 40%,80% { transform: translateX(7px) } }
+    .gate.unlocked { opacity: 0; transform: translateY(-12px) scale(1.025); pointer-events: none; }
+
+
+    /* Petals cover the whole viewport, NEVER the small passcode panel. */
+    .effect-layer {
+      position: fixed; inset: 0; width: 100vw; height: 100dvh;
+      z-index: 10; pointer-events: none; overflow: hidden;
+      contain: layout style paint;
+    }
+    .petal-heart, .petal-fall {
+      position: absolute; pointer-events: none; will-change: transform, opacity;
+      width: var(--w); height: var(--h); opacity: 0;
+      transform-origin: center;
+      background: radial-gradient(circle at 29% 27%, rgba(255,255,255,.86) 0%, transparent 36%),
+                  linear-gradient(145deg, #ffe6ed 0%, #ffafc7 38%, #ff75a0 93%);
+      border-radius: 75% 14% 75% 23% / 76% 18% 73% 25%;
+      box-shadow: 0 2px 7px rgba(255, 104, 150, .24);
+    }
+    .petal-heart.show {
+      animation: petalHeartAppear .67s cubic-bezier(.15,.7,.26,1.08) both;
+      animation-delay: var(--delay, 0s);
+    }
+    .petal-fall.show {
+      animation: petalFall var(--dur,1.9s) cubic-bezier(.32,.17,.64,.82) both;
+      animation-delay: var(--delay, 0s);
+    }
+    .gate.unlocking { box-shadow: 0 24px 55px rgba(232,98,139,.14),
+      0 0 0 2px rgba(255,155,188,.28), 0 0 34px rgba(255, 124, 165, .18),
+      0 2px 2px #ffffff8a inset;
+    }
+    @keyframes petalHeartAppear {
+      0% { opacity: 0; transform: translate(-50%,-50%) translate(var(--from-x), var(--from-y)) rotate(var(--start-rot)) scale(.26); }
+      13% { opacity: .95; }
+      74% { opacity: 1; transform: translate(-50%,-50%) rotate(var(--end-rot)) scale(1.13); }
+      100% { opacity: .98; transform: translate(-50%,-50%) rotate(var(--end-rot)) scale(1); }
+    }
+    @keyframes petalFall {
+      0% { opacity: 0; transform: translate3d(0,-28px,0) rotate(0deg) scale(var(--sc)); }
+      12% { opacity: .93; }
+      42% { transform: translate3d(calc(var(--drift) * -.33), 44vh,0) rotate(calc(var(--rot) * .4)) scale(var(--sc)); }
+      100% { opacity: .82; transform: translate3d(var(--drift), calc(100dvh + 85px),0) rotate(var(--rot)) scale(var(--sc)); }
+    }
+
+    @media (max-width: 480px) {
+      body { padding: 15px; }
+      .gate { padding: 37px 21px 25px; border-radius: 30px; }
+      .dots { margin: 25px 0 29px; }
+      .pad { grid-template-columns: repeat(3, minmax(0, 78px)); gap: 14px; }
+      .key { height: 60px; }
+      .hint { margin-top: 17px; }
+    }
+    @media (max-height: 695px) {
+      body { overflow: auto; place-items: start center; }
+      .gate { margin: 10px 0 70px; padding-top: 27px; padding-bottom: 23px; }
+      .dots { margin: 17px 0 22px; }
+      .pad { gap: 10px; }
+      .key { height: 51px; }
+      .hint { margin-top: 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation: none !important; transition: none !important; } }
+
+    /* A short landscape viewport needs a compact two-column keypad. */
+    @media (orientation:landscape) and (max-height:600px) and (pointer:coarse) {
+      html,body{height:100dvh;min-height:0}
+      body{padding:8px max(12px,env(safe-area-inset-left));overflow:hidden;place-items:center}
+      .gate{width:min(580px,94vw);max-height:calc(100dvh - 16px);margin:0;padding:14px 18px;border-radius:24px;display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,240px);grid-template-rows:auto auto auto auto;column-gap:22px;row-gap:6px;align-items:center}
+      h1{grid-column:1;grid-row:1;font-size:clamp(17px,5.8dvh,24px);line-height:1.25}
+      .dots{grid-column:1;grid-row:2;margin:8px 0;gap:13px}
+      .dot{width:17px;height:17px}
+      .pad{grid-column:2;grid-row:1 / 5;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+      .key{height:clamp(30px,11dvh,47px);border-radius:12px;font-size:21px}
+      .key.delete{font-size:27px}
+      .hint{grid-column:1;grid-row:3;margin:0;font-size:11px;line-height:1.4}
+      .feedback{grid-column:1;grid-row:4;height:auto;min-height:28px;margin:0;font-size:11px;line-height:1.3}
+    }
+
+  </style>
+<link rel="stylesheet" href="assets/landscape-guard.css">
+</head>
+<body>
+
+<div id="tiny-landscape-guard" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="tiny-rotate-title" aria-describedby="tiny-rotate-description" aria-hidden="true">
+<svg viewBox="0 0 120 120" fill="none" aria-hidden="true"><rect x="35" y="23" width="50" height="76" rx="10" transform="rotate(-25 60 60)" fill="#fff8fc" stroke="#bd7395" stroke-width="4"/><path d="M52 83h16" transform="rotate(-25 60 60)" stroke="#bd7395" stroke-width="4" stroke-linecap="round"/><path d="M84 12c18 8 27 24 24 43m-10-9 10 10 8-12M36 108C18 100 9 84 12 65m10 9L12 64 4 76" stroke="#d58bab" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<strong id="tiny-rotate-title">Xoay Ngang Màn Hình</strong>
+<p id="tiny-rotate-description">Bạn xoay ngang điện thoại để xem nhé 💗<br>Nếu màn hình chưa xoay, hãy tắt khóa xoay màn hình.</p>
+</div>
+<script src="assets/landscape-guard.js"></script>
+
+  <audio id="gate-soundtrack" preload="auto" loop playsinline src="assets/nhac-nen.mp3"></audio>
+  <iframe id="tiny-story" title="Lời chúc của Tiny" allow="autoplay; fullscreen" style="display:none;position:fixed;inset:0;width:100%;height:100%;border:0;z-index:10000;background:#fff"></iframe>
+  <div class="pink-glow" aria-hidden="true"></div>
+  <div class="sprinkles" id="sprinkles" aria-hidden="true"></div>
+  <main class="gate" id="gate" aria-label="Mở khóa lời chúc của Tiny">
+    <h1>Nhập ngày sinh của bạn</h1>
+    <div class="dots" id="dots" aria-label="Đã nhập 0 trên 4 chữ số">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+    <div class="pad" aria-label="Bàn phím nhập mã">
+      <button class="key" type="button" data-digit="1">1</button>
+      <button class="key" type="button" data-digit="2">2</button>
+      <button class="key" type="button" data-digit="3">3</button>
+      <button class="key" type="button" data-digit="4">4</button>
+      <button class="key" type="button" data-digit="5">5</button>
+      <button class="key" type="button" data-digit="6">6</button>
+      <button class="key" type="button" data-digit="7">7</button>
+      <button class="key" type="button" data-digit="8">8</button>
+      <button class="key" type="button" data-digit="9">9</button>
+      <span class="key empty" aria-hidden="true"></span>
+      <button class="key" type="button" data-digit="0">0</button>
+      <button class="key delete" type="button" data-delete="true" aria-label="Xóa số cuối">×</button>
+    </div>
+    <p class="hint">Nhập 4 số theo thứ tự ngày và tháng (DDMM)</p>
+    <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
+  </main>
+  <div class="effect-layer" id="effect-layer" aria-hidden="true"></div>
+  <script src="cau-hinh.js"></script>
+  <script>
+    (() => {
+      'use strict';
+      // Mat ma hien tai la 2312 (23/12); de doi ma, sua file cau-hinh.js.
+      const correct = /^\d{4}$/.test(window.TINY_NGAY_SINH || '') ? window.TINY_NGAY_SINH : '2312';
+      const gate = document.getElementById('gate');
+      const dots = Array.from(document.querySelectorAll('.dot'));
+      const dotsContainer = document.getElementById('dots');
+      const feedback = document.getElementById('feedback');
+      const effectLayer = document.getElementById('effect-layer');
+      window.tinySharedSoundtrack = document.getElementById('gate-soundtrack');
+      window.tinySharedSoundtrack.volume = 0.84;
+      let typed = '';
+      let busy = false;
+      let finished = false;
+
+
+
+      function createHeartPetalEffect() {
+        gate.classList.add('unlocking');
+        effectLayer.replaceChildren();
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const cx = vw / 2;
+        // Use one uniform scale so the heart cannot stretch on wide phones.
+        const heartScale = Math.max(1, Math.min(19, (vw - 46) / 32, (vh - 44) / 30));
+        const cy = vh / 2 - 2.5 * heartScale;
+        // Parametric heart outline. Keep it inside a phone, but fill the central
+        // screen on desktop. The panel remains visible underneath the petals.
+        const sx = heartScale;
+        const sy = heartScale;
+        const petalScale = Math.min(1, Math.max(.5, heartScale / 14));
+        const frag = document.createDocumentFragment();
+        function addHeartPetal(t, ring, index, delay) {
+          const px = 16 * Math.pow(Math.sin(t), 3);
+          const py = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
+          const x = cx + px * sx * ring;
+          const y = cy - py * sy * ring;
+          const el = document.createElement('i');
+          el.className = 'petal-heart';
+          el.style.left = x.toFixed(1) + 'px';
+          el.style.top = y.toFixed(1) + 'px';
+          el.style.setProperty('--w', ((13 + index % 5 * 1.8) * petalScale).toFixed(1) + 'px');
+          el.style.setProperty('--h', ((9 + index % 4 * 1.6) * petalScale).toFixed(1) + 'px');
+          el.style.setProperty('--from-x', (cx - x).toFixed(1) + 'px');
+          el.style.setProperty('--from-y', (cy - y).toFixed(1) + 'px');
+          el.style.setProperty('--start-rot', ((index * 37) % 360 - 180) + 'deg');
+          el.style.setProperty('--end-rot', ((index * 61) % 180 - 90) + 'deg');
+          el.style.setProperty('--delay', delay.toFixed(3) + 's');
+          frag.appendChild(el);
+        }
+        // Two staggered lines of pink petals, NOT a solid heart shape.
+        const outer = 76;
+        for (let i = 0; i < outer; i++) {
+          addHeartPetal((Math.PI * 2 * i) / outer, 1, i, i * .013);
+        }
+        const inner = 44;
+        for (let i = 0; i < inner; i++) {
+          addHeartPetal((Math.PI * 2 * (i + .5)) / inner, .932, i + outer, .36 + i * .016);
+        }
+        // Falling petals are distributed in VIEWPORT coordinates, not relative
+        // to the code panel. All screen regions receive falling petals.
+        const falls = 90;
+        for (let i = 0; i < falls; i++) {
+          const el = document.createElement('i');
+          el.className = 'petal-fall';
+          const spreadX = 2 + ((i * 37 + 19) % 96);
+          el.style.left = spreadX + 'vw';
+          el.style.top = '-24px';
+          el.style.setProperty('--w', (10 + (i * 11 % 9)) + 'px');
+          el.style.setProperty('--h', (7 + (i * 7 % 8)) + 'px');
+          el.style.setProperty('--drift', (-105 + (i * 43 % 211)) + 'px');
+          el.style.setProperty('--rot', ((i * 79 % 560) - 280) + 'deg');
+          el.style.setProperty('--sc', (.72 + (i * 13 % 45) / 100).toFixed(2));
+          el.style.setProperty('--dur', (1.62 + (i * 17 % 55) / 100).toFixed(2) + 's');
+          el.style.setProperty('--delay', ((i * 11 % 65) / 100).toFixed(2) + 's');
+          frag.appendChild(el);
+        }
+        effectLayer.appendChild(frag);
+        // Start animations together in the next frame, preserving stagger.
+        requestAnimationFrame(() => {
+          effectLayer.querySelectorAll('.petal-heart, .petal-fall')
+            .forEach(el => el.classList.add('show'));
+        });
+      }
+
+      const render = () => {
+        dots.forEach((dot, i) => dot.classList.toggle('filled', i < typed.length));
+        dotsContainer.setAttribute('aria-label', 'Đã nhập ' + typed.length + ' trên 4 chữ số');
+      };
+      function addDigit(d) {
+        if (busy || finished || typed.length >= 4) return;
+        typed += d;
+        feedback.textContent = '';
+        render();
+        if (typed.length === 4) {
+          busy = true;
+          if (typed === correct) {
+            finished = true;
+            feedback.textContent = 'Đúng rồi! Mở lời chúc nhé 💗';
+            window.tinySharedSoundtrack.play().catch(() => {
+              feedback.textContent = 'Chạm màn hình để bật nhạc 💗';
+            });
+            createHeartPetalEffect();
+            window.setTimeout(() => {
+              const frame = document.getElementById('tiny-story');
+              frame.src = 'tiny.html';
+              frame.style.display = 'block';
+              frame.addEventListener('load', () => frame.contentWindow.focus(), {once:true});
+              gate.hidden = true;
+              effectLayer.replaceChildren();
+            }, 2450);
+          } else {
+            feedback.textContent = 'Chưa đúng rồi, thử lại nhé 💗';
+            gate.classList.remove('shake');
+            void gate.offsetWidth;
+            gate.classList.add('shake');
+            window.setTimeout(() => {
+              typed = '';
+              busy = false;
+              render();
+            }, 790);
+          }
+        }
+      }
+      function erase() {
+        if (busy || finished) return;
+        typed = typed.slice(0,-1);
+        feedback.textContent = '';
+        render();
+      }
+      document.querySelectorAll('[data-digit]').forEach(el => {
+        el.addEventListener('click', () => addDigit(el.dataset.digit));
+      });
+      document.querySelector('[data-delete]').addEventListener('click', erase);
+      document.addEventListener('keydown', e => {
+        if (e.altKey || e.ctrlKey || e.metaKey) return;
+        if (/^[0-9]$/.test(e.key)) addDigit(e.key);
+        else if (e.key === 'Backspace' || e.key === 'Delete') { e.preventDefault(); erase(); }
+      });
+      // Tao hat hong nhe, khong can them thu vien hay ket noi mang.
+      const sprinkleRoot = document.getElementById('sprinkles');
+      for (let i=0; i<65; i++) {
+        let seed = (i * 1033 + 17) % 8191;
+        const rand = t => ((seed * (t*149 + 71) + t * 683) % 8191) / 8191;
+        const span = document.createElement('i');
+        span.className = 'sprinkle';
+        span.style.setProperty('--x', (rand(1)*100).toFixed(2)+'%');
+        span.style.setProperty('--y', (rand(2)*100).toFixed(2)+'%');
+        span.style.setProperty('--s', (2+rand(3)*7).toFixed(1)+'px');
+        span.style.setProperty('--c', i%4 === 0 ? '#ffffff' : '#ff80a8');
+        span.style.setProperty('--o', (.26+rand(4)*.65).toFixed(2));
+        span.style.setProperty('--t', (3+rand(5)*5).toFixed(1)+'s');
+        span.style.setProperty('--d', (-rand(6)*6).toFixed(1)+'s');
+        sprinkleRoot.appendChild(span);
+      }
+    })();
+  </script>
+  <noscript>Trang cần bật JavaScript để nhập mã mở khóa.</noscript>
+</body>
+</html>
